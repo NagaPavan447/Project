@@ -18,9 +18,20 @@ def init_db(db_path="callradar.db"):
             audio_path TEXT,
             transcript_json TEXT,
             analysis_json TEXT,
-            attention_score INTEGER
+            attention_score INTEGER,
+            duration_seconds REAL,
+            category TEXT
         )
     """)
+    
+    # Safe migration in case columns don't exist in existing database
+    c.execute("PRAGMA table_info(calls)")
+    columns = [col[1] for col in c.fetchall()]
+    if "duration_seconds" not in columns:
+        c.execute("ALTER TABLE calls ADD COLUMN duration_seconds REAL")
+    if "category" not in columns:
+        c.execute("ALTER TABLE calls ADD COLUMN category TEXT")
+        
     conn.commit()
     return conn
 
@@ -85,16 +96,25 @@ def run_ingestion(data_dir: str, db_path: str = "callradar.db", limit: int = Non
             turns = process_stereo_call(audio_path)
             analysis = analyze_transcript(turns, meta)
             
+            # Calculate duration from turns
+            duration = turns[-1]["end"] if turns else 0.0
+            category = getattr(analysis, "category", "General Support")
+            
             cursor.execute("""
-                INSERT INTO calls VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO calls (
+                    call_id, customer_name, agent_name, timestamp,
+                    audio_path, transcript_json, analysis_json,
+                    attention_score, duration_seconds, category
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 call_id, customer_name, agent_name,
                 timestamp, audio_path, json.dumps(turns),
-                analysis.model_dump_json(), analysis.needs_attention_score
+                analysis.model_dump_json(), analysis.needs_attention_score,
+                duration, category
             ))
             conn.commit()
             processed_count += 1
-            print(f"  -> Ingested: {call_id} (Attention Score: {analysis.needs_attention_score}/100)")
+            print(f"  -> Ingested: {call_id} | Category: {category} | Attention Score: {analysis.needs_attention_score}/100")
         except Exception as e:
             print(f"  -> Error processing {call_id}: {e}")
             
@@ -103,4 +123,4 @@ def run_ingestion(data_dir: str, db_path: str = "callradar.db", limit: int = Non
 
 if __name__ == "__main__":
     dataset_dir = r"c:\Users\nagap\Downloads\Documents\Audio\callradar-data"
-    run_ingestion(dataset_dir, limit=1)
+    run_ingestion(dataset_dir, limit=5)

@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CallRadar — QA & Conversation Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- App Container -->
+  <div class="app-layout">
+    
+    <!-- Top Navigation Bar -->
+    <header class="top-nav">
+      <div class="nav-brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
+            <path d="M2 12h20"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>CallRadar <span class="brand-tag">Ops QA</span></h1>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" id="navTabs">
+        <button class="nav-tab active" data-tab="radar" id="tabRadarBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="m4.93 4.93 4.24 4.24"></path><path d="m14.83 9.17 4.24-4.24"></path><path d="m14.83 14.83 4.24 4.24"></path><path d="m9.17 14.83-4.24 4.24"></path></svg>
+          Manager Radar
+        </button>
+        <button class="nav-tab" data-tab="inspector" id="tabInspectorBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12h20"></path><path d="M20 12v8H4v-8"></path><path d="m4 4 16 16"></path></svg>
+          Call Inspector
+        </button>
+        <button class="nav-tab" data-tab="customers" id="tabCustomersBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          Customer History
+        </button>
+        <button class="nav-tab" data-tab="agents" id="tabAgentsBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="3" rx="2"></rect><line x1="8" x2="16" y1="21" y2="21"></line><line x1="12" x2="12" y1="17" y2="21"></line></svg>
+          Agent Scorecards
+        </button>
+        <button class="nav-tab" data-tab="trends" id="tabTrendsBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+          Trending Issues
+        </button>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-secondary btn-sm" id="btnRefresh">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
+          Sync Data
+        </button>
+      </div>
+    </header>
+
+    <!-- Executive Metrics Row -->
+    <section class="metrics-row" id="statsContainer">
+      <div class="metric-card">
+        <div class="metric-label">Analyzed Calls</div>
+        <div class="metric-value" id="statTotalCalls">—</div>
+        <div class="metric-sub" id="statSubTotal">100% Speech-to-Text</div>
+      </div>
+      <div class="metric-card alert-risk">
+        <div class="metric-label">High-Attention Escalations</div>
+        <div class="metric-value" id="statHighUrgency">—</div>
+        <div class="metric-sub">Score &ge; 70 requiring review</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Average Attention Score</div>
+        <div class="metric-value" id="statAvgScore">—</div>
+        <div class="metric-sub">Across all conversations</div>
+      </div>
+      <div class="metric-card success">
+        <div class="metric-label">Resolution Rate</div>
+        <div class="metric-value" id="statResolutionRate">—%</div>
+        <div class="metric-sub" id="statAvgHandleTime">Avg Handle: —</div>
+      </div>
+    </section>
+
+    <!-- Main Content Body -->
+    <main class="main-body">
+
+      <!-- TAB 1: MANAGER RADAR (Attention Queue) -->
+      <section class="tab-pane active" id="pane-radar">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <h2>Manager Attention Radar</h2>
+            <p>Calls automatically ranked by customer friction, mood pivot risk, and unresolved status.</p>
+          </div>
+          <div class="filter-controls">
+            <input type="text" id="radarSearch" class="search-input" placeholder="Search customer, agent, or call ID..." />
+            <select id="radarCategoryFilter" class="select-input">
+              <option value="">All Categories</option>
+              <option value="Card Services">Card Services</option>
+              <option value="Checkbook Order">Checkbook Order</option>
+              <option value="Account Inquiry">Account Inquiry</option>
+              <option value="Fraud & Security">Fraud & Security</option>
+              <option value="Fee Dispute">Fee Dispute</option>
+              <option value="General Support">General Support</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="radar-table-container">
+          <table class="data-table" id="radarTable">
+            <thead>
+              <tr>
+                <th style="width: 110px;">Attention</th>
+                <th>Call ID / Intent</th>
+                <th>Customer</th>
+                <th>Agent</th>
+                <th>Category</th>
+                <th>Resolved</th>
+                <th>Mood Pivot</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="radarTableBody">
+              <tr>
+                <td colspan="8" class="text-center py-6">Loading attention radar...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 2: CALL INSPECTOR (Audio + Transcript + Evidence) -->
+      <section class="tab-pane" id="pane-inspector">
+        <div class="inspector-layout">
+          
+          <!-- Left Column: Audio & Transcript -->
+          <div class="inspector-transcript-col">
+            <div class="card audio-player-card">
+              <div class="audio-header">
+                <div>
+                  <h3 id="playerCallId">Select a call to inspect</h3>
+                  <div class="audio-meta" id="playerCallMeta">Agent: — | Customer: —</div>
+                </div>
+                <div class="audio-badge" id="playerUrgencyBadge">Score: —</div>
+              </div>
+
+              <!-- Native Audio Element -->
+              <audio id="audioPlayer" preload="auto"></audio>
+
+              <div class="player-controls">
+                <button class="btn-play" id="btnPlayPause" title="Play / Pause">
+                  <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <svg id="pauseIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="display:none;"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                </button>
+                <div class="player-time" id="playerTime">0:00 / 0:00</div>
+                <div class="player-scrubber">
+                  <input type="range" id="audioScrubber" min="0" max="100" value="0" step="0.1" />
+                </div>
+                <span class="player-hint">Click any transcript bubble to seek</span>
+              </div>
+            </div>
+
+            <!-- Transcript Turns Feed -->
+            <div class="card transcript-feed-card">
+              <div class="card-header">
+                <h3>Conversation Turns (<span id="transcriptTurnCount">0</span>)</h3>
+                <span class="badge-subtle">Channel Separated (Left = Agent, Right = Customer)</span>
+              </div>
+              <div class="transcript-scroll" id="transcriptContainer">
+                <div class="empty-state">Select a call from the radar or customer list to review the transcript.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Evidence & Intelligence -->
+          <div class="inspector-intel-col">
+            
+            <!-- Summary & Intent -->
+            <div class="card intelligence-card">
+              <div class="card-header">
+                <h3>AI Call Intelligence</h3>
+                <span class="badge-resolved" id="intelResolvedBadge">Resolution: —</span>
+              </div>
+
+              <div class="intel-section">
+                <div class="intel-label">Executive Summary (&le; 40 words)</div>
+                <p class="intel-summary" id="intelSummary">—</p>
+              </div>
+
+              <div class="intel-section">
+                <div class="intel-label">Customer Intent</div>
+                <div class="intel-text" id="intelIntent">—</div>
+                <div class="evidence-quote-box" id="intentEvidenceBox">
+                  <div class="quote-header">
+                    <span class="quote-tag">Intent Evidence</span>
+                    <button class="btn-quote-jump" id="btnJumpIntent">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                      <span id="intentTimeTag">@ —s</span>
+                    </button>
+                  </div>
+                  <blockquote id="intentEvidenceQuote">"—"</blockquote>
+                </div>
+              </div>
+
+              <div class="intel-section">
+                <div class="intel-label">Mood Progression & Pivot Point</div>
+                <div class="mood-flow" id="moodFlow">
+                  <span class="mood-badge" id="initialMood">Initial: —</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  <span class="mood-badge" id="finalMood">Final: —</span>
+                </div>
+                <div class="evidence-quote-box" id="moodEvidenceBox">
+                  <div class="quote-header">
+                    <span class="quote-tag">Mood Shift Pivot Evidence</span>
+                    <button class="btn-quote-jump" id="btnJumpMood">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                      <span id="moodTimeTag">@ —s</span>
+                    </button>
+                  </div>
+                  <blockquote id="moodEvidenceQuote">"—"</blockquote>
+                </div>
+              </div>
+
+              <div class="intel-section">
+                <div class="intel-label">Resolution Evidence</div>
+                <div class="evidence-quote-box" id="resolutionEvidenceBox">
+                  <div class="quote-header">
+                    <span class="quote-tag">Resolution Proof</span>
+                    <button class="btn-quote-jump" id="btnJumpResolution">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                      <span id="resTimeTag">@ —s</span>
+                    </button>
+                  </div>
+                  <blockquote id="resolutionEvidenceQuote">"—"</blockquote>
+                </div>
+              </div>
+
+              <div class="intel-section" id="escalationSection">
+                <div class="intel-label">Escalation Reasons</div>
+                <ul class="escalation-list" id="escalationReasonsList">
+                  <li>No critical escalation triggered.</li>
+                </ul>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+
+      <!-- TAB 3: CUSTOMER HISTORY -->
+      <section class="tab-pane" id="pane-customers">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <h2>Customer Multi-Call History</h2>
+            <p>Every customer by name with complete call logs, repeat contact alerts, and audio access.</p>
+          </div>
+          <input type="text" id="customerSearchInput" class="search-input" placeholder="Search customer name..." />
+        </div>
+
+        <div class="customer-layout">
+          <!-- Left: Customer List -->
+          <div class="customer-list-panel" id="customerListContainer">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Right: Customer Timeline Details -->
+          <div class="customer-timeline-panel" id="customerDetailContainer">
+            <div class="empty-state">Select a customer from the left to view their full call history timeline.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: AGENT SCORECARDS -->
+      <section class="tab-pane" id="pane-agents">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <h2>Agent Performance Scorecards</h2>
+            <p>Comparison of call volumes, average handle time, resolution rates, and friction scores.</p>
+          </div>
+        </div>
+
+        <div class="grid-agents" id="agentCardsContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- TAB 5: TRENDING ISSUES -->
+      <section class="tab-pane" id="pane-trends">
+        <div class="pane-header">
+          <div class="pane-title-group">
+            <h2>Trending Issues & Topic Insights</h2>
+            <p>Aggregated customer intent patterns, friction drivers, and resolution difficulty.</p>
+          </div>
+        </div>
+
+        <div class="trends-container" id="trendsContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -21,6 +21,7 @@ class MoodShift(BaseModel):
     evidence: Optional[Evidence] = Field(default=None, description="Quote and timestamp justifying the mood shift")
 
 class CallIntelligence(BaseModel):
+    category: str = Field(default="General Support", description="Primary topic category (e.g., 'Card Services', 'Checkbook Order', 'Account Inquiry', 'Fraud & Security', 'Fee Dispute', 'Transfer & Payments', 'General Support')")
     intent: str = Field(description="Core reason for the call (1-2 sentences)")
     intent_evidence: Evidence = Field(description="Exact quote establishing intent")
     mood_analysis: MoodShift = Field(description="Customer mood progression and pivot points")
@@ -29,6 +30,7 @@ class CallIntelligence(BaseModel):
     summary: str = Field(description="Concise summary strictly 40 words or fewer")
     needs_attention_score: int = Field(description="Score from 0-100 indicating manager escalation urgency")
     escalation_reasons: List[str] = Field(default_factory=list, description="Bullet points for why this call needs manager review")
+
 
 # Prompt setup
 ANALYZER_PROMPT = ChatPromptTemplate.from_messages([
