@@ -2,6 +2,7 @@
 from pydub import AudioSegment
 from faster_whisper import WhisperModel
 import os
+import tempfile
 
 model = WhisperModel("base.en", device="cuda" if os.environ.get("USE_GPU") else "cpu", compute_type="float32")
 
@@ -10,8 +11,10 @@ def process_stereo_call(audio_path: str):
     channels = sound.split_to_mono()
     
     # Left = Agent (0), Right = Customer (1)
-    agent_path = "/tmp/agent_temp.wav"
-    customer_path = "/tmp/customer_temp.wav"
+    temp_dir = tempfile.gettempdir()
+    agent_path = os.path.join(temp_dir, "agent_temp.wav")
+    customer_path = os.path.join(temp_dir, "customer_temp.wav")
+    
     channels[0].export(agent_path, format="wav")
     channels[1].export(customer_path, format="wav")
 
@@ -37,6 +40,11 @@ def process_stereo_call(audio_path: str):
             "text": seg.text.strip()
         })
 
+    # Clean up temporary files
+    for path in (agent_path, customer_path):
+        if os.path.exists(path):
+            os.remove(path)
+
     # Chronologically sort the conversation turns
     turns.sort(key=lambda x: x["start"])
-    return turns
+    return turns

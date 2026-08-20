@@ -8,7 +8,9 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "faster-whisper>=1.2.1",
     "langchain>=1.3.16",
+    "pydub>=0.25.1",
 ]
 
 [project.scripts]
